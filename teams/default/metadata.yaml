@@ -1,0 +1,19 @@
+apiVersion: konstruct.io/v1alpha1
+kind: TeamMetadata
+metadata:
+  name: default
+  displayName: "Default Team"
+  description: "Default team configuration with standard settings"
+spec:
+  extends: null  # Base configuration, doesn't extend anything
+  components:
+    - name: external-secrets
+      enabled: true
+    - name: cert-manager
+      enabled: true
+    - name: cert-manager-issuers
+      enabled: true
+    - name: external-dns
+      enabled: true
+    - name: ingress-nginx
+      enabled: true

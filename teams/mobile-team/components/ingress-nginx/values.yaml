@@ -1,0 +1,20 @@
+# Mobile team ingress-nginx overrides
+controller:
+  replicaCount: 3
+  config:
+    client-body-buffer-size: "64k"
+    proxy-body-size: "100m"
+    proxy-connect-timeout: "10"
+    proxy-read-timeout: "120"
+    proxy-send-timeout: "120"
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1024Mi
+  service:
+    annotations:
+      service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+      service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"

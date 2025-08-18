@@ -1,0 +1,33 @@
+apiVersion: konstruct.io/v1alpha1
+kind: TeamMetadata
+metadata:
+  name: mobile-team
+  displayName: "Mobile Team"
+  description: "Mobile team optimized for mobile backend services"
+spec:
+  extends: default
+  components:
+    - name: external-secrets
+      enabled: true
+    - name: cert-manager
+      enabled: true
+      overrides:
+        webhook:
+          replicaCount: 2
+    - name: external-dns
+      enabled: true
+      overrides:
+        sources: ["service", "ingress"]
+        txtOwnerId: "mobile-team"
+    - name: ingress-nginx
+      enabled: true
+      overrides:
+        controller:
+          replicaCount: 3
+          config:
+            client-body-buffer-size: "64k"
+            proxy-body-size: "100m"
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"

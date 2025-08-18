@@ -1,0 +1,33 @@
+apiVersion: konstruct.io/v1alpha1
+kind: TeamMetadata
+metadata:
+  name: konstruct
+  displayName: "Konstruct Platform Team"
+  description: "Konstruct platform team with enhanced configurations"
+spec:
+  extends: default
+  components:
+    - name: external-secrets
+      enabled: true
+      overrides:
+        replicaCount: 2
+        webhook:
+          replicaCount: 2
+    - name: cert-manager
+      enabled: true
+      overrides:
+        replicaCount: 2
+    - name: external-dns
+      enabled: true
+      overrides:
+        interval: "30s"
+        policy: "sync"
+    - name: ingress-nginx
+      enabled: true
+      overrides:
+        controller:
+          replicaCount: 3
+    - name: crossplane
+      enabled: true
+    - name: workload-cluster
+      enabled: true

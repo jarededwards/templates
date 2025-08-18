@@ -1,0 +1,17 @@
+apiVersion: konstruct.io/v1alpha1
+kind: RepositoryMetadata
+metadata:
+  name: konstruct-templates
+  description: "Konstruct platform templates repository"
+  version: "1.0.0"
+spec:
+  defaultTeam: default
+  templatesVersion: "v1alpha1"
+  # Optional: Reference to upstream template repository
+  upstream:
+    repository: "https://github.com/jarededwards/templates"
+    ref: "main"
+    fallback: true  # Use upstream if local template not found
+  maintainers:
+    - name: "Platform Team"
+      email: "platform@example.com"

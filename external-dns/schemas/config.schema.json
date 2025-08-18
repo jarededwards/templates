@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "External-DNS Configuration",
+  "type": "object",
+  "required": ["provider"],
+  "properties": {
+    "provider": {
+      "type": "string",
+      "enum": ["route53", "cloudflare", "cloudDNS", "azureDNS", "civo"]
+    },
+    "domainFilters": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?(?:\\.[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9])*$"
+      },
+      "default": []
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["service", "ingress", "crd"]
+      },
+      "default": ["ingress"]
+    },
+    "interval": {
+      "type": "string",
+      "pattern": "^[0-9]+(s|m|h)$",
+      "default": "1m"
+    },
+    "policy": {
+      "type": "string",
+      "enum": ["sync", "upsert-only"],
+      "default": "upsert-only"
+    },
+    "txtOwnerId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9-]+$"
+    }
+  }
+}

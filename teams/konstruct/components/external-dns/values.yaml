@@ -1,0 +1,12 @@
+# Konstruct team external-dns overrides
+interval: 30s
+policy: sync
+txtOwnerId: "konstruct-platform"
+logLevel: debug
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi

@@ -1,0 +1,50 @@
+apiVersion: konstruct.io/v1alpha1
+kind: TemplateIndex
+metadata:
+  name: template-index
+  version: "1.0.0"
+spec:
+  components:
+    - name: cert-manager
+      path: cert-manager/
+      description: "X.509 certificate management for Kubernetes"
+      availableInTeams: ["default", "konstruct", "mobile-team"]
+      # Optional: Override repository source for this component
+      # source:
+      #   repository: "https://github.com/myneworg/templates"
+      #   ref: "main"
+      #   path: "cert-manager/"
+    - name: cert-manager-issuers
+      path: cert-manager-issuers/
+      description: "Certificate issuers for cert-manager"
+      availableInTeams: ["default", "konstruct", "mobile-team"]
+    - name: external-dns
+      path: external-dns/
+      description: "Synchronize exposed Kubernetes Services and Ingresses with DNS providers"
+      availableInTeams: ["default", "konstruct", "mobile-team"]
+    - name: external-secrets
+      path: external-secrets/
+      description: "Integrate external secret management systems"
+      availableInTeams: ["default", "konstruct", "mobile-team"]
+    - name: ingress-nginx
+      path: ingress-nginx/
+      description: "NGINX Ingress Controller for Kubernetes"
+      availableInTeams: ["default", "konstruct", "mobile-team"]
+    - name: crossplane
+      path: crossplane/
+      description: "Cloud Native Control Planes"
+      availableInTeams: ["default", "konstruct"]
+    - name: workload-cluster
+      path: workload-cluster/
+      description: "Workload cluster configuration"
+      availableInTeams: ["default", "konstruct"]
+  teams:
+    - name: default
+      path: teams/default/
+      description: "Default team configuration with standard settings"
+    - name: konstruct
+      path: teams/konstruct/
+      description: "Konstruct platform team with enhanced configurations"
+    - name: mobile-team
+      path: teams/mobile-team/
+      description: "Mobile team optimized for mobile backend services"

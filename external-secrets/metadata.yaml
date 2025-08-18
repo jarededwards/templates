@@ -1,0 +1,41 @@
+apiVersion: konstruct.io/v1alpha1
+kind: ComponentMetadata
+metadata:
+  name: external-secrets
+  description: "Integrate external secret management systems"
+spec:
+  version: "v0.10.5"
+  chart:
+    repository: "https://charts.external-secrets.io"
+    name: "external-secrets"
+    version: "0.10.5"
+  dependencies: []
+  templates:
+    - name: "application.yaml.tmpl"
+      description: "External Secrets Operator Argo CD application"
+    - name: "0-clusterrole.yaml.tmpl"
+      description: "ClusterRole for External Secrets Operator"
+    - name: "wait.yaml.tmpl"
+      description: "Wait job for External Secrets readiness"
+  inputs:
+    - name: replicaCount
+      type: integer
+      description: "Number of controller replicas"
+      default: 1
+    - name: webhook.replicaCount
+      type: integer
+      description: "Number of webhook replicas"
+      default: 1
+    - name: certController.replicaCount
+      type: integer
+      description: "Number of cert controller replicas"
+      default: 1
+    - name: cloudProvider
+      type: string
+      description: "Cloud provider for workload identity"
+      enum: ["aws", "gcp", "azure", "none"]
+      default: "none"
+    - name: serviceAccount.annotations
+      type: object
+      description: "Annotations for the service account"
+      default: {}

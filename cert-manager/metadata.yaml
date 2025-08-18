@@ -1,0 +1,40 @@
+apiVersion: konstruct.io/v1alpha1
+kind: ComponentMetadata
+metadata:
+  name: cert-manager
+  description: "X.509 certificate management for Kubernetes"
+spec:
+  version: "v1.15.3"
+  chart:
+    repository: "https://charts.jetstack.io"
+    name: "cert-manager"
+    version: "v1.15.3"
+  dependencies: []
+  templates:
+    - name: "application.yaml.tmpl"
+      description: "Main cert-manager Argo CD application"
+  inputs:
+    - name: replicaCount
+      type: integer
+      description: "Number of cert-manager replicas"
+      default: 1
+      validation:
+        min: 1
+        max: 10
+    - name: webhook.replicaCount
+      type: integer
+      description: "Number of webhook replicas"
+      default: 1
+    - name: cainjector.replicaCount
+      type: integer
+      description: "Number of cainjector replicas"
+      default: 1
+    - name: cloudProvider
+      type: string
+      description: "Cloud provider for workload identity"
+      enum: ["aws", "gcp", "azure", "none"]
+      default: "none"
+    - name: serviceAccount.annotations
+      type: object
+      description: "Annotations for the service account"
+      default: {}

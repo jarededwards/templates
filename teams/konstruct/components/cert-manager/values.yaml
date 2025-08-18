@@ -1,0 +1,13 @@
+# Konstruct team cert-manager overrides
+replicaCount: 2
+webhook:
+  replicaCount: 2
+cainjector:
+  replicaCount: 2
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

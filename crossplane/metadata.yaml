@@ -1,0 +1,33 @@
+apiVersion: konstruct.io/v1alpha1
+kind: ComponentMetadata
+metadata:
+  name: crossplane
+  description: "Cloud Native Control Planes"
+spec:
+  version: "v1.17.0"
+  chart:
+    repository: "https://charts.crossplane.io/stable"
+    name: "crossplane"
+    version: "1.17.0"
+  dependencies:
+    - external-secrets
+  templates:
+    - name: "application.yaml.tmpl"
+      description: "Crossplane Argo CD application"
+    - name: "external-secret.yaml.tmpl"
+      description: "External secret for cloud provider credentials"
+    - name: "provider-config.yaml.tmpl"
+      description: "Provider configuration for cloud resources"
+  inputs:
+    - name: providers
+      type: array
+      description: "List of Crossplane providers to install"
+      items:
+        type: string
+        enum: ["provider-aws", "provider-gcp", "provider-azure", "provider-kubernetes"]
+      default: ["provider-kubernetes"]
+    - name: cloudProvider
+      type: string
+      description: "Primary cloud provider"
+      enum: ["aws", "gcp", "azure"]
+      required: true

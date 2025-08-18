@@ -1,0 +1,29 @@
+apiVersion: konstruct.io/v1alpha1
+kind: ComponentMetadata
+metadata:
+  name: cert-manager-issuers
+  description: "Certificate issuers for cert-manager"
+spec:
+  version: "v1.0.0"
+  dependencies:
+    - cert-manager
+  templates:
+    - name: "letsencrypt-issuers.yaml.tmpl"
+      description: "Let's Encrypt certificate issuers"
+    - name: "cloudflare-secret.yaml.tmpl"
+      description: "Cloudflare API credentials for DNS-01 challenges"
+  inputs:
+    - name: email
+      type: string
+      description: "Email address for Let's Encrypt notifications"
+      required: true
+    - name: dnsProvider
+      type: string
+      description: "DNS provider for DNS-01 challenges"
+      enum: ["cloudflare", "route53", "cloudDNS", "azureDNS"]
+      default: "cloudflare"
+    - name: acmeServer
+      type: string
+      description: "ACME server URL"
+      enum: ["production", "staging"]
+      default: "production"

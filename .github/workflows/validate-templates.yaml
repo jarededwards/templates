@@ -1,0 +1,52 @@
+name: Validate Templates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Validate YAML files
+        run: |
+          find . -name "*.yaml" -o -name "*.yml" | while read file; do
+            echo "Validating $file"
+            yq eval '.' "$file" > /dev/null || exit 1
+          done
+      
+      - name: Validate metadata files exist
+        run: |
+          # Check repository metadata
+          test -f metadata.yaml || (echo "Missing /metadata.yaml" && exit 1)
+          test -f index.yaml || (echo "Missing /index.yaml" && exit 1)
+          
+          # Check component metadata
+          for dir in cert-manager external-dns external-secrets ingress-nginx; do
+            test -f "$dir/metadata.yaml" || (echo "Missing $dir/metadata.yaml" && exit 1)
+          done
+          
+          # Check team metadata
+          for team in default konstruct mobile-team; do
+            test -f "teams/$team/metadata.yaml" || (echo "Missing teams/$team/metadata.yaml" && exit 1)
+          done
+      
+      - name: Validate JSON schemas
+        run: |
+          for schema in $(find . -name "*.schema.json"); do
+            echo "Validating schema: $schema"
+            jq '.' "$schema" > /dev/null || exit 1
+          done
+      
+      - name: Check template syntax
+        run: |
+          # Simple Go template syntax check
+          for tmpl in $(find . -name "*.tmpl"); do
+            echo "Checking template: $tmpl"
+            # Basic syntax validation (checking for common issues)
+            grep -E '{{.*}}' "$tmpl" | grep -v -E '{{-?\s*(if|else|end|range|with|define|template|block)' | grep -E '{{[^}]*{{' && echo "Nested template tags found in $tmpl" && exit 1 || true
+          done

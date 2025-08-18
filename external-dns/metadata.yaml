@@ -1,0 +1,46 @@
+apiVersion: konstruct.io/v1alpha1
+kind: ComponentMetadata
+metadata:
+  name: external-dns
+  description: "Synchronize exposed Kubernetes Services and Ingresses with DNS providers"
+spec:
+  version: "v0.14.2"
+  chart:
+    repository: "https://kubernetes-sigs.github.io/external-dns"
+    name: "external-dns"
+    version: "1.14.5"
+  dependencies:
+    - external-secrets  # For provider credentials
+  templates:
+    - name: "application.yaml.tmpl"
+      description: "External DNS Argo CD application"
+    - name: "externalsecret.yaml.tmpl"
+      description: "External secret for DNS provider credentials"
+  inputs:
+    - name: provider
+      type: string
+      description: "DNS provider"
+      enum: ["route53", "cloudflare", "cloudDNS", "azureDNS", "civo"]
+      required: true
+    - name: domainFilters
+      type: array
+      description: "Limit possible target zones by domain suffixes"
+      items:
+        type: string
+      default: []
+    - name: sources
+      type: array
+      description: "K8s resources to monitor for DNS entries"
+      items:
+        type: string
+        enum: ["service", "ingress", "crd"]
+      default: ["ingress"]
+    - name: cloudProvider
+      type: string
+      description: "Cloud provider for workload identity"
+      enum: ["aws", "gcp", "azure", "civo", "none"]
+      default: "none"
+    - name: serviceAccount.annotations
+      type: object
+      description: "Annotations for the service account"
+      default: {}
