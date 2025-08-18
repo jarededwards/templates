@@ -1,0 +1,59 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+spec:
+  acme:
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    email: {{ .AlertsEmail }}
+    privateKeySecretRef:
+      name: letsencrypt-staging
+    solvers:
+    {{- if eq .CloudProvider "aws" }}
+    - selector:
+        dnsZones:
+        - {{ .DomainName }}
+      dns01:
+        route53:
+          region: {{ .AWSRegion }}
+    {{- else if .CloudFlareAPIToken }}
+    - dns01:
+        cloudflare:
+          apiTokenSecretRef:
+            name: cloudflare-api-token
+            key: api-token
+    {{- else }}
+    - http01:
+        ingress:
+          ingressClassName: nginx
+    {{- end }}
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-production
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: {{ .AlertsEmail }}
+    privateKeySecretRef:
+      name: letsencrypt-production
+    solvers:
+    {{- if eq .CloudProvider "aws" }}
+    - selector:
+        dnsZones:
+        - {{ .DomainName }}
+      dns01:
+        route53:
+          region: {{ .AWSRegion }}
+    {{- else if .CloudFlareAPIToken }}
+    - dns01:
+        cloudflare:
+          apiTokenSecretRef:
+            name: cloudflare-api-token
+            key: api-token
+    {{- else }}
+    - http01:
+        ingress:
+          ingressClassName: nginx
+    {{- end }}

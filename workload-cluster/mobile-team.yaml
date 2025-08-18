@@ -1,0 +1,15 @@
+applications:
+    externalSecrets:
+    - https://github.com/jarededwards/templates/external-secrets?ref=v0.1.1
+    externalDNS:
+    - https://github.com/jarededwards/templates/external-dns?ref=v0.1.1
+    certManager:
+    - https://github.com/jarededwards/templates/cert-manager?ref=v0.1.2
+    certManagerIssuers:
+    - https://github.com/jarededwards/templates/cert-manager-issuers?ref=v0.1.2
+
+inputs:
+    externalDNS: 
+        domain: string <renders text box for domain>
+    certManager: 
+        issuer: string <renders text box for issuer>

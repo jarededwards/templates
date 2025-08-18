@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "10"
+spec:
+  project: {{ .Project | default "default" }}
+  source:
+    repoURL: https://charts.jetstack.io
+    targetRevision: {{ .ChartVersion | default "v1.15.2" }}
+    helm:
+      valuesObject:
+        serviceAccount:
+          create: true
+          name: cert-manager
+          {{- if eq .CloudProvider "aws" }}
+          annotations:
+            eks.amazonaws.com/role-arn: arn:aws:iam::{{ .AWSAccountID }}:role/KON-{{ .ClusterName }}-cert-manager
+          {{- end }}
+        installCRDs: {{ .Values.installCRDs | default true }}
+    chart: cert-manager
+  destination:
+    name: {{ .DestinationName | default "in-cluster" }}
+    namespace: cert-manager
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

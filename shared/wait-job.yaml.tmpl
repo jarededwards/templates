@@ -1,0 +1,46 @@
+{{- define "wait-job" -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .JobName }}
+  namespace: {{ .Namespace }}
+  annotations:
+    argocd.argoproj.io/sync-wave: "{{ .SyncWave }}"
+spec:
+  template:
+    spec:
+      serviceAccountName: {{ .ServiceAccount | default "default" }}
+      restartPolicy: Never
+      containers:
+      - name: wait
+        image: alpine/helm:latest
+        command:
+        - /bin/sh
+        - -c
+        - |
+          {{- if .WaitForCRD }}
+          echo "Waiting for CRD {{ .WaitForCRD }} to be available..."
+          until kubectl get crd {{ .WaitForCRD }}; do
+            echo "CRD {{ .WaitForCRD }} not found. Waiting..."
+            sleep 5
+          done
+          echo "CRD {{ .WaitForCRD }} is available!"
+          {{- end }}
+          {{- if .WaitForNamespace }}
+          echo "Waiting for namespace {{ .WaitForNamespace }} to be ready..."
+          until kubectl get namespace {{ .WaitForNamespace }}; do
+            echo "Namespace {{ .WaitForNamespace }} not found. Waiting..."
+            sleep 5
+          done
+          echo "Namespace {{ .WaitForNamespace }} is ready!"
+          {{- end }}
+          {{- if .WaitForDeployment }}
+          echo "Waiting for deployment {{ .WaitForDeployment.Name }} in namespace {{ .WaitForDeployment.Namespace }}..."
+          kubectl wait --for=condition=available --timeout=300s deployment/{{ .WaitForDeployment.Name }} -n {{ .WaitForDeployment.Namespace }}
+          echo "Deployment {{ .WaitForDeployment.Name }} is ready!"
+          {{- end }}
+          {{- if .CustomWaitCommand }}
+          {{ .CustomWaitCommand }}
+          {{- end }}
+          echo "All conditions met. Job completed successfully!"
+{{- end -}}

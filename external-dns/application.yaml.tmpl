@@ -1,0 +1,51 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: external-dns
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "20"
+spec:
+  project: {{ .Project | default "default" }}
+  source:
+    repoURL: https://kubernetes-sigs.github.io/external-dns
+    targetRevision: {{ .ChartVersion | default "1.14.4" }}
+    chart: external-dns
+    helm:
+      valuesObject:
+        image:
+          repository: {{ .Values.image.repository | default "registry.k8s.io/external-dns/external-dns" }}
+          tag: {{ .Values.image.tag | default "v0.13.2" }}
+        serviceAccount:
+          create: true
+          name: external-dns
+          {{- if eq .CloudProvider "aws" }}
+          annotations:
+            eks.amazonaws.com/role-arn: arn:aws:iam::{{ .AWSAccountID }}:role/KON-{{ .ClusterName }}-external-dns
+          {{- end }}
+        provider: {{ .Values.provider | default "cloudflare" }}
+        sources:
+          {{- range .Values.sources | default (list "ingress") }}
+          - {{ . }}
+          {{- end }}
+        domainFilters:
+          {{- range .Values.domainFilters | default (list .DomainName) }}
+          - {{ . }}
+          {{- end }}
+        {{- if eq .Values.provider "cloudflare" }}
+        env:
+          - name: CF_API_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: external-dns-secrets
+                key: token
+        {{- end }}
+  destination:
+    name: {{ .DestinationName | default "in-cluster" }}
+    namespace: external-dns
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
