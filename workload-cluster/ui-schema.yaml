@@ -1,0 +1,95 @@
+type: object
+title: Workload Cluster Configuration
+description: Configure your workload cluster settings
+properties:
+  clusterName:
+    type: string
+    title: Cluster Name
+    description: Name of the workload cluster
+    pattern: "^[a-z0-9-]+$"
+    minLength: 3
+    maxLength: 32
+  teamName:
+    type: string
+    title: Team Name
+    description: Team that owns this cluster
+    default: "default"
+    enum: ["default", "konstruct", "mobile-team"]
+  gitOpsRepoURL:
+    type: string
+    title: GitOps Repository URL
+    description: URL of the Git repository containing cluster configurations
+    format: uri
+    pattern: "^https://.*\\.git$"
+  gitOpsRepoRevision:
+    type: string
+    title: Git Revision
+    description: Branch, tag, or commit to track
+    default: "main"
+  argoProject:
+    type: string
+    title: Argo CD Project
+    description: Argo CD project to use for this application
+    default: "default"
+  destinationServer:
+    type: string
+    title: Destination Server
+    description: Kubernetes API server URL
+    default: "https://kubernetes.default.svc"
+    format: uri
+  destinationNamespace:
+    type: string
+    title: Destination Namespace
+    description: Target namespace for resources
+    default: "default"
+  syncPolicy:
+    type: object
+    title: Sync Policy
+    description: Configure automatic synchronization
+    properties:
+      prune:
+        type: boolean
+        title: Auto Prune
+        description: Automatically delete resources not in Git
+        default: true
+      selfHeal:
+        type: boolean
+        title: Self Heal
+        description: Automatically sync when cluster state drifts
+        default: true
+      retryLimit:
+        type: integer
+        title: Retry Limit
+        description: Number of sync retries on failure
+        default: 5
+        minimum: 1
+        maximum: 10
+      backoffDuration:
+        type: string
+        title: Backoff Duration
+        description: Initial backoff duration for retries
+        default: "5s"
+        pattern: "^[0-9]+(s|m|h)$"
+      backoffFactor:
+        type: integer
+        title: Backoff Factor
+        description: Backoff multiplier for each retry
+        default: 2
+        minimum: 1
+        maximum: 10
+      maxBackoffDuration:
+        type: string
+        title: Max Backoff Duration
+        description: Maximum backoff duration
+        default: "3m"
+        pattern: "^[0-9]+(s|m|h)$"
+  revisionHistoryLimit:
+    type: integer
+    title: Revision History Limit
+    description: Number of revisions to keep in history
+    default: 3
+    minimum: 1
+    maximum: 10
+required:
+  - clusterName
+  - gitOpsRepoURL

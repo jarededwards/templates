@@ -1,0 +1,96 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Workload Cluster Configuration",
+  "type": "object",
+  "required": ["clusterName", "gitOpsRepoURL"],
+  "properties": {
+    "clusterName": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "minLength": 3,
+      "maxLength": 32,
+      "description": "Name of the workload cluster"
+    },
+    "teamName": {
+      "type": "string",
+      "enum": ["default", "konstruct", "mobile-team"],
+      "default": "default",
+      "description": "Team that owns this cluster"
+    },
+    "gitOpsRepoURL": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://.*\\.git$",
+      "description": "URL of the Git repository containing cluster configurations"
+    },
+    "gitOpsRepoRevision": {
+      "type": "string",
+      "default": "main",
+      "description": "Branch, tag, or commit to track"
+    },
+    "argoProject": {
+      "type": "string",
+      "default": "default",
+      "description": "Argo CD project to use for this application"
+    },
+    "destinationServer": {
+      "type": "string",
+      "format": "uri",
+      "default": "https://kubernetes.default.svc",
+      "description": "Kubernetes API server URL"
+    },
+    "destinationNamespace": {
+      "type": "string",
+      "default": "default",
+      "description": "Target namespace for resources"
+    },
+    "syncPolicy": {
+      "type": "object",
+      "properties": {
+        "prune": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically delete resources not in Git"
+        },
+        "selfHeal": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically sync when cluster state drifts"
+        },
+        "retryLimit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 5,
+          "description": "Number of sync retries on failure"
+        },
+        "backoffDuration": {
+          "type": "string",
+          "pattern": "^[0-9]+(s|m|h)$",
+          "default": "5s",
+          "description": "Initial backoff duration for retries"
+        },
+        "backoffFactor": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 2,
+          "description": "Backoff multiplier for each retry"
+        },
+        "maxBackoffDuration": {
+          "type": "string",
+          "pattern": "^[0-9]+(s|m|h)$",
+          "default": "3m",
+          "description": "Maximum backoff duration"
+        }
+      }
+    },
+    "revisionHistoryLimit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10,
+      "default": 3,
+      "description": "Number of revisions to keep in history"
+    }
+  }
+}

@@ -7,6 +7,8 @@ spec:
   version: "v1.0.0"
   dependencies: []
   templates:
+    - name: "application.yaml.tmpl"
+      description: "Argo CD application for workload cluster"
     - name: "mobile-team.yaml"
       description: "Mobile team workload cluster configuration"
   inputs:
@@ -14,19 +16,50 @@ spec:
       type: string
       description: "Name of the workload cluster"
       required: true
-    - name: cloudProvider
+    - name: teamName
       type: string
-      description: "Cloud provider for the cluster"
-      enum: ["aws", "gcp", "azure", "civo"]
-      required: true
-    - name: region
+      description: "Team that owns this cluster"
+      enum: ["default", "konstruct", "mobile-team"]
+      default: "default"
+    - name: gitOpsRepoURL
       type: string
-      description: "Cloud provider region"
+      description: "URL of the Git repository containing cluster configurations"
       required: true
-    - name: nodeCount
+    - name: gitOpsRepoRevision
+      type: string
+      description: "Branch, tag, or commit to track"
+      default: "main"
+    - name: argoProject
+      type: string
+      description: "Argo CD project to use for this application"
+      default: "default"
+    - name: destinationServer
+      type: string
+      description: "Kubernetes API server URL"
+      default: "https://kubernetes.default.svc"
+    - name: destinationNamespace
+      type: string
+      description: "Target namespace for resources"
+      default: "default"
+    - name: syncPolicy.prune
+      type: boolean
+      description: "Automatically delete resources not in Git"
+      default: true
+    - name: syncPolicy.selfHeal
+      type: boolean
+      description: "Automatically sync when cluster state drifts"
+      default: true
+    - name: syncPolicy.retryLimit
       type: integer
-      description: "Number of worker nodes"
+      description: "Number of sync retries on failure"
+      default: 5
+      validation:
+        min: 1
+        max: 10
+    - name: revisionHistoryLimit
+      type: integer
+      description: "Number of revisions to keep in history"
       default: 3
       validation:
         min: 1
-        max: 100
+        max: 10

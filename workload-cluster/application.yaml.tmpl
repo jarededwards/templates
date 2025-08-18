@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .clusterName }}-workload-cluster
+  namespace: argocd
+  labels:
+    konstruct.io/cluster: "{{ .clusterName }}"
+    konstruct.io/team: "{{ .teamName | default "default" }}"
+  annotations:
+    konstruct.io/created-by: "konstruct-api"
+spec:
+  project: {{ .argoProject | default "default" }}
+  source:
+    repoURL: {{ .gitOpsRepoURL }}
+    targetRevision: {{ .gitOpsRepoRevision | default "HEAD" }}
+    path: clusters/{{ .clusterName }}
+  destination:
+    server: {{ .destinationServer | default "https://kubernetes.default.svc" }}
+    namespace: {{ .destinationNamespace | default "default" }}
+  syncPolicy:
+    automated:
+      prune: {{ .syncPolicy.prune | default true }}
+      selfHeal: {{ .syncPolicy.selfHeal | default true }}
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    retry:
+      limit: {{ .syncPolicy.retryLimit | default 5 }}
+      backoff:
+        duration: {{ .syncPolicy.backoffDuration | default "5s" }}
+        factor: {{ .syncPolicy.backoffFactor | default 2 }}
+        maxDuration: {{ .syncPolicy.maxBackoffDuration | default "3m" }}
+  revisionHistoryLimit: {{ .revisionHistoryLimit | default 3 }}
