@@ -1,10 +1,15 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ingress-nginx
+  name: {{ .clusterName }}-ingress-nginx
   namespace: argocd
+  labels:
+    konstruct.io/cluster: "{{ .clusterName }}"
+    konstruct.io/team: "{{ .teamName | default "default" }}"
+    konstruct.io/component: "ingress-nginx"
   annotations:
-    argocd.argoproj.io/sync-wave: "10"
+    konstruct.io/created-by: "konstruct-api"
+    argocd.argoproj.io/sync-wave: "50"  # Deploy after DNS for ingress
 spec:
   project: {{ .Project | default "default" }}
   source:

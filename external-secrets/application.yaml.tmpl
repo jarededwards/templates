@@ -1,10 +1,15 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: external-secrets
+  name: {{ .clusterName }}-external-secrets
   namespace: argocd
+  labels:
+    konstruct.io/cluster: "{{ .clusterName }}"
+    konstruct.io/team: "{{ .teamName | default "default" }}"
+    konstruct.io/component: "external-secrets"
   annotations:
-    argocd.argoproj.io/sync-wave: "10"
+    konstruct.io/created-by: "konstruct-api"
+    argocd.argoproj.io/sync-wave: "10"  # Deploy first for secrets management
 spec:
   project: {{ .Project | default "default" }}
   source:

@@ -6,10 +6,15 @@ metadata:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: crossplane
+  name: {{ .clusterName }}-crossplane
   namespace: argocd
+  labels:
+    konstruct.io/cluster: "{{ .clusterName }}"
+    konstruct.io/team: "{{ .teamName | default "default" }}"
+    konstruct.io/component: "crossplane"
   annotations:
-    argocd.argoproj.io/sync-wave: "20"
+    konstruct.io/created-by: "konstruct-api"
+    argocd.argoproj.io/sync-wave: "60"  # Deploy for infrastructure management after platform
 spec:
   project: {{ .Project | default "default" }}
   source:

@@ -1,0 +1,133 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: {{ .clusterName }}-cert-manager-issuers
+  namespace: argocd
+  labels:
+    konstruct.io/cluster: "{{ .clusterName }}"
+    konstruct.io/team: "{{ .teamName | default "default" }}"
+    konstruct.io/component: "cert-manager-issuers"
+  annotations:
+    konstruct.io/created-by: "konstruct-api"
+    argocd.argoproj.io/sync-wave: "30"  # Deploy after cert-manager
+spec:
+  project: {{ .argoProject | default "default" }}
+  source:
+    repoURL: {{ .helmRepository | default "https://charts.jetstack.io" }}
+    chart: {{ .helmChart | default "cert-manager" }}
+    targetRevision: {{ .helmVersion | default "v1.15.3" }}
+    helm:
+      releaseName: cert-manager-issuers
+      values: |
+        # This is a post-install configuration for cert-manager
+        # The actual issuers are created via the templates in this directory
+        
+        # Let's Encrypt Staging Issuer
+        {{- if .enableStagingIssuer | default true }}
+        issuers:
+          staging:
+            enabled: true
+            email: {{ .email | quote }}
+            server: https://acme-staging-v02.api.letsencrypt.org/directory
+            {{- if eq (.dnsProvider | default "cloudflare") "cloudflare" }}
+            dnsProvider: cloudflare
+            cloudflareApiTokenSecretRef:
+              name: cloudflare-api-token
+              key: api-token
+            {{- end }}
+        {{- end }}
+        
+        # Let's Encrypt Production Issuer
+        {{- if .enableProductionIssuer | default true }}
+        issuers:
+          production:
+            enabled: true
+            email: {{ .email | quote }}
+            server: https://acme-v02.api.letsencrypt.org/directory
+            {{- if eq (.dnsProvider | default "cloudflare") "cloudflare" }}
+            dnsProvider: cloudflare
+            cloudflareApiTokenSecretRef:
+              name: cloudflare-api-token
+              key: api-token
+            {{- end }}
+        {{- end }}
+  destination:
+    server: {{ .destinationServer | default "https://kubernetes.default.svc" }}
+    namespace: {{ .namespace | default "cert-manager" }}
+  syncPolicy:
+    automated:
+      prune: {{ .syncPolicy.prune | default false }}  # Be careful with cert-manager
+      selfHeal: {{ .syncPolicy.selfHeal | default true }}
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    retry:
+      limit: {{ .syncPolicy.retryLimit | default 3 }}
+      backoff:
+        duration: {{ .syncPolicy.backoffDuration | default "5s" }}
+        factor: {{ .syncPolicy.backoffFactor | default 2 }}
+        maxDuration: {{ .syncPolicy.maxBackoffDuration | default "3m" }}
+  revisionHistoryLimit: {{ .revisionHistoryLimit | default 3 }}
+---
+# Custom resources for Let's Encrypt issuers
+{{- if .enableStagingIssuer | default true }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .clusterName }}-letsencrypt-staging-issuer
+  namespace: argocd
+  labels:
+    konstruct.io/cluster: "{{ .clusterName }}"
+    konstruct.io/component: "cert-manager-issuers"
+data:
+  issuer.yaml: |
+    apiVersion: cert-manager.io/v1
+    kind: ClusterIssuer
+    metadata:
+      name: letsencrypt-staging
+    spec:
+      acme:
+        server: https://acme-staging-v02.api.letsencrypt.org/directory
+        email: {{ .email }}
+        privateKeySecretRef:
+          name: letsencrypt-staging
+        {{- if eq (.dnsProvider | default "cloudflare") "cloudflare" }}
+        solvers:
+        - dns01:
+            cloudflare:
+              apiTokenSecretRef:
+                name: cloudflare-api-token
+                key: api-token
+        {{- end }}
+{{- end }}
+---
+{{- if .enableProductionIssuer | default true }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .clusterName }}-letsencrypt-production-issuer
+  namespace: argocd
+  labels:
+    konstruct.io/cluster: "{{ .clusterName }}"
+    konstruct.io/component: "cert-manager-issuers"
+data:
+  issuer.yaml: |
+    apiVersion: cert-manager.io/v1
+    kind: ClusterIssuer
+    metadata:
+      name: letsencrypt-production
+    spec:
+      acme:
+        server: https://acme-v02.api.letsencrypt.org/directory
+        email: {{ .email }}
+        privateKeySecretRef:
+          name: letsencrypt-production
+        {{- if eq (.dnsProvider | default "cloudflare") "cloudflare" }}
+        solvers:
+        - dns01:
+            cloudflare:
+              apiTokenSecretRef:
+                name: cloudflare-api-token
+                key: api-token
+        {{- end }}
+{{- end }}

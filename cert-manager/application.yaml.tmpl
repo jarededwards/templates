@@ -1,10 +1,15 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: cert-manager
+  name: {{ .clusterName }}-cert-manager
   namespace: argocd
+  labels:
+    konstruct.io/cluster: "{{ .clusterName }}"
+    konstruct.io/team: "{{ .teamName | default "default" }}"
+    konstruct.io/component: "cert-manager"
   annotations:
-    argocd.argoproj.io/sync-wave: "10"
+    konstruct.io/created-by: "konstruct-api"
+    argocd.argoproj.io/sync-wave: "20"  # Deploy for certificates after secrets
 spec:
   project: {{ .Project | default "default" }}
   source:

@@ -6,8 +6,10 @@ metadata:
   labels:
     konstruct.io/cluster: "{{ .clusterName }}"
     konstruct.io/team: "{{ .teamName | default "default" }}"
+    konstruct.io/component: "workload-cluster"
   annotations:
     konstruct.io/created-by: "konstruct-api"
+    argocd.argoproj.io/sync-wave: "70"  # Deploy last for applications/workloads
 spec:
   project: {{ .argoProject | default "default" }}
   source:

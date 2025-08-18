@@ -1,10 +1,15 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: external-dns
+  name: {{ .clusterName }}-external-dns
   namespace: argocd
+  labels:
+    konstruct.io/cluster: "{{ .clusterName }}"
+    konstruct.io/team: "{{ .teamName | default "default" }}"
+    konstruct.io/component: "external-dns"
   annotations:
-    argocd.argoproj.io/sync-wave: "20"
+    konstruct.io/created-by: "konstruct-api"
+    argocd.argoproj.io/sync-wave: "40"  # Deploy for DNS management
 spec:
   project: {{ .Project | default "default" }}
   source:
