@@ -17,6 +17,8 @@ spec:
       description: "ClusterRole for External Secrets Operator"
     - name: "wait.yaml.tmpl"
       description: "Wait job for External Secrets readiness"
+    - name: "sync.yaml.tmpl"
+      description: "Sync job to create ClusterSecretStore from temporary secret"
   inputs:
     - name: replicaCount
       type: integer

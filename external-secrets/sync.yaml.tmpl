@@ -1,0 +1,130 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: external-secrets-sync
+  namespace: external-secrets
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: external-secrets-sync
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list"]
+  - apiGroups: ["external-secrets.io"]
+    resources: ["clustersecretstores"]
+    verbs: ["create", "get", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["create", "get", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["serviceaccounts"]
+    verbs: ["create", "get", "update", "patch"]
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["clusterroles", "clusterrolebindings"]
+    verbs: ["create", "get", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: external-secrets-sync
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: external-secrets-sync
+subjects:
+  - kind: ServiceAccount
+    name: external-secrets-sync
+    namespace: external-secrets
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: external-secrets-sync
+  namespace: external-secrets
+  annotations:
+    argocd.argoproj.io/sync-wave: "25"  # After external-secrets is ready
+spec:
+  ttlSecondsAfterFinished: 300
+  backoffLimit: 6
+  template:
+    spec:
+      serviceAccountName: external-secrets-sync
+      restartPolicy: OnFailure
+      containers:
+      - name: sync
+        image: bitnami/kubectl:latest
+        command: ["/bin/bash", "-c"]
+        args:
+          - |
+            set -e
+            echo "Starting ClusterSecretStore synchronization for cluster: {{ .ClusterName }}"
+            
+            # Wait for external-secrets webhook to be ready
+            echo "Waiting for external-secrets webhook..."
+            kubectl wait --for=condition=available --timeout=300s deployment/external-secrets-webhook -n external-secrets || true
+            
+            # Check if temporary secret exists
+            if ! kubectl get secret temp-clustersecretstore-{{ .ClusterName }} -n default >/dev/null 2>&1; then
+              echo "ERROR: Temporary ClusterSecretStore secret not found. Please run the bootstrap API first."
+              exit 1
+            fi
+            
+            echo "Found temporary secret, creating ClusterSecretStore..."
+            
+            # Create ServiceAccount for ClusterSecretStore
+            kubectl create serviceaccount {{ .ClusterName }}-clustersecretstore -n external-secrets --dry-run=client -o yaml | kubectl apply -f -
+            
+            # Create ClusterRole for accessing the temp secret
+            cat <<EOF | kubectl apply -f -
+            apiVersion: rbac.authorization.k8s.io/v1
+            kind: ClusterRole
+            metadata:
+              name: {{ .ClusterName }}-clustersecretstore
+            rules:
+              - apiGroups: [""]
+                resources: ["secrets"]
+                verbs: ["get", "list"]
+                resourceNames: ["temp-clustersecretstore-{{ .ClusterName }}"]
+              - apiGroups: [""]
+                resources: ["secrets"]
+                verbs: ["get", "list"]
+                namespaces: ["default"]
+            EOF
+            
+            # Create ClusterRoleBinding for ServiceAccount
+            kubectl create clusterrolebinding {{ .ClusterName }}-clustersecretstore \
+              --clusterrole={{ .ClusterName }}-clustersecretstore \
+              --serviceaccount=external-secrets:{{ .ClusterName }}-clustersecretstore \
+              --dry-run=client -o yaml | kubectl apply -f -
+            
+            # Create ClusterSecretStore
+            cat <<EOF | kubectl apply -f -
+            apiVersion: external-secrets.io/v1beta1
+            kind: ClusterSecretStore
+            metadata:
+              name: {{ .ClusterName }}-clustersecretstore
+            spec:
+              provider:
+                kubernetes:
+                  remoteNamespace: default
+                  server:
+                    caProvider:
+                      type: ConfigMap
+                      name: kube-root-ca.crt
+                      namespace: default
+                      key: ca.crt
+                  auth:
+                    serviceAccount:
+                      name: {{ .ClusterName }}-clustersecretstore
+                      namespace: external-secrets
+            EOF
+            
+            # Create a ConfigMap to signal completion
+            kubectl create configmap {{ .ClusterName }}-clustersecretstore \
+              --from-literal=status=completed \
+              --from-literal=timestamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+              -n external-secrets --dry-run=client -o yaml | kubectl apply -f -
+            
+            echo "ClusterSecretStore configuration completed successfully!"
