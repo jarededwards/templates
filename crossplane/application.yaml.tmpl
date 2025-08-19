@@ -26,7 +26,6 @@ spec:
         provider:
           packages:
             - {{ .Values.providerPackage | default "xpkg.upbound.io/crossplane-contrib/provider-terraform" }}:{{ .Values.providerVersion | default "v0.18.0" }}
-    chart: crossplane
   destination:
     name: {{ .DestinationName | default "in-cluster" }}
     namespace: crossplane-system

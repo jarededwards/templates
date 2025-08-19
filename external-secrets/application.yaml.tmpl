@@ -21,7 +21,6 @@ spec:
         serviceAccount:
           create: true
           name: external-secrets
-    chart: external-secrets
   destination:
     name: {{ .DestinationName | default "in-cluster" }}
     namespace: external-secrets

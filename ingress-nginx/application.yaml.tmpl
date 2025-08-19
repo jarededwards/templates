@@ -28,7 +28,6 @@ spec:
               service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
             {{- end }}
           enableSSLPassthrough: {{ .Values.controller.enableSSLPassthrough | default true }}
-    chart: ingress-nginx
   destination:
     name: {{ .DestinationName | default "in-cluster" }}
     namespace: ingress-nginx
