@@ -6,11 +6,11 @@ metadata:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: {{ .clusterName }}-crossplane
+  name: {{ .ClusterName }}-crossplane
   namespace: argocd
   labels:
-    konstruct.io/cluster: "{{ .clusterName }}"
-    konstruct.io/team: "{{ .teamName | default "default" }}"
+    konstruct.io/cluster: "{{ .ClusterName }}"
+    konstruct.io/team: "{{ .TeamName | default "default" }}"
     konstruct.io/component: "crossplane"
   annotations:
     konstruct.io/created-by: "konstruct-api"
@@ -19,6 +19,7 @@ spec:
   project: {{ .Project | default "default" }}
   source:
     repoURL: https://charts.crossplane.io/stable
+    chart: crossplane
     targetRevision: {{ .ChartVersion | default "1.16.0" }}
     helm:
       valuesObject:

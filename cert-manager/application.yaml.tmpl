@@ -1,11 +1,11 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: {{ .clusterName }}-cert-manager
+  name: {{ .ClusterName }}-cert-manager
   namespace: argocd
   labels:
-    konstruct.io/cluster: "{{ .clusterName }}"
-    konstruct.io/team: "{{ .teamName | default "default" }}"
+    konstruct.io/cluster: "{{ .ClusterName }}"
+    konstruct.io/team: "{{ .TeamName | default "default" }}"
     konstruct.io/component: "cert-manager"
   annotations:
     konstruct.io/created-by: "konstruct-api"
@@ -14,6 +14,7 @@ spec:
   project: {{ .Project | default "default" }}
   source:
     repoURL: https://charts.jetstack.io
+    chart: cert-manager
     targetRevision: {{ .ChartVersion | default "v1.15.2" }}
     helm:
       valuesObject:
@@ -25,7 +26,6 @@ spec:
             eks.amazonaws.com/role-arn: arn:aws:iam::{{ .AWSAccountID }}:role/KON-{{ .ClusterName }}-cert-manager
           {{- end }}
         installCRDs: {{ .Values.installCRDs | default true }}
-    chart: cert-manager
   destination:
     name: {{ .DestinationName | default "in-cluster" }}
     namespace: cert-manager

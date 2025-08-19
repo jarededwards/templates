@@ -1,11 +1,11 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: {{ .clusterName }}-ingress-nginx
+  name: {{ .ClusterName }}-ingress-nginx
   namespace: argocd
   labels:
-    konstruct.io/cluster: "{{ .clusterName }}"
-    konstruct.io/team: "{{ .teamName | default "default" }}"
+    konstruct.io/cluster: "{{ .ClusterName }}"
+    konstruct.io/team: "{{ .TeamName | default "default" }}"
     konstruct.io/component: "ingress-nginx"
   annotations:
     konstruct.io/created-by: "konstruct-api"
@@ -14,6 +14,7 @@ spec:
   project: {{ .Project | default "default" }}
   source:
     repoURL: https://kubernetes.github.io/ingress-nginx
+    chart: ingress-nginx
     targetRevision: {{ .ChartVersion | default "4.11.2" }}
     helm:
       valuesObject:

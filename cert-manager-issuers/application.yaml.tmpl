@@ -1,11 +1,11 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: {{ .clusterName }}-cert-manager-issuers
+  name: {{ .ClusterName }}-cert-manager-issuers
   namespace: argocd
   labels:
-    konstruct.io/cluster: "{{ .clusterName }}"
-    konstruct.io/team: "{{ .teamName | default "default" }}"
+    konstruct.io/cluster: "{{ .ClusterName }}"
+    konstruct.io/team: "{{ .TeamName | default "default" }}"
     konstruct.io/component: "cert-manager-issuers"
   annotations:
     konstruct.io/created-by: "konstruct-api"
@@ -74,10 +74,10 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .clusterName }}-letsencrypt-staging-issuer
+  name: {{ .ClusterName }}-letsencrypt-staging-issuer
   namespace: argocd
   labels:
-    konstruct.io/cluster: "{{ .clusterName }}"
+    konstruct.io/cluster: "{{ .ClusterName }}"
     konstruct.io/component: "cert-manager-issuers"
 data:
   issuer.yaml: |
@@ -105,10 +105,10 @@ data:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .clusterName }}-letsencrypt-production-issuer
+  name: {{ .ClusterName }}-letsencrypt-production-issuer
   namespace: argocd
   labels:
-    konstruct.io/cluster: "{{ .clusterName }}"
+    konstruct.io/cluster: "{{ .ClusterName }}"
     konstruct.io/component: "cert-manager-issuers"
 data:
   issuer.yaml: |

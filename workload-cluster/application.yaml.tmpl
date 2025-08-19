@@ -1,11 +1,11 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: {{ .clusterName }}-workload-cluster
+  name: {{ .ClusterName }}-workload-cluster
   namespace: argocd
   labels:
-    konstruct.io/cluster: "{{ .clusterName }}"
-    konstruct.io/team: "{{ .teamName | default "default" }}"
+    konstruct.io/cluster: "{{ .ClusterName }}"
+    konstruct.io/team: "{{ .TeamName | default "default" }}"
     konstruct.io/component: "workload-cluster"
   annotations:
     konstruct.io/created-by: "konstruct-api"

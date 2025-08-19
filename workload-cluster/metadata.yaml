@@ -12,11 +12,11 @@ spec:
     - name: "mobile-team.yaml"
       description: "Mobile team workload cluster configuration"
   inputs:
-    - name: clusterName
+    - name: ClusterName
       type: string
       description: "Name of the workload cluster"
       required: true
-    - name: teamName
+    - name: TeamName
       type: string
       description: "Team that owns this cluster"
       enum: ["default", "konstruct", "mobile-team"]

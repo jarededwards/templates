@@ -1,11 +1,11 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: {{ .clusterName }}-external-dns
+  name: {{ .ClusterName }}-external-dns
   namespace: argocd
   labels:
-    konstruct.io/cluster: "{{ .clusterName }}"
-    konstruct.io/team: "{{ .teamName | default "default" }}"
+    konstruct.io/cluster: "{{ .ClusterName }}"
+    konstruct.io/team: "{{ .TeamName | default "default" }}"
     konstruct.io/component: "external-dns"
   annotations:
     konstruct.io/created-by: "konstruct-api"
@@ -14,8 +14,8 @@ spec:
   project: {{ .Project | default "default" }}
   source:
     repoURL: https://kubernetes-sigs.github.io/external-dns
-    targetRevision: {{ .ChartVersion | default "1.14.4" }}
     chart: external-dns
+    targetRevision: {{ .ChartVersion | default "1.14.4" }}
     helm:
       valuesObject:
         image:
@@ -37,14 +37,12 @@ spec:
           {{- range .Values.domainFilters | default (list .DomainName) }}
           - {{ . }}
           {{- end }}
-        {{- if eq .Values.provider "cloudflare" }}
         env:
           - name: CF_API_TOKEN
             valueFrom:
               secretKeyRef:
                 name: external-dns-secrets
                 key: token
-        {{- end }}
   destination:
     name: {{ .DestinationName | default "in-cluster" }}
     namespace: external-dns
