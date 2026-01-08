@@ -1,0 +1,7 @@
+#! defined by platform admin
+# @input.type: dynami
+# @input.description: EC2 instance type for workload cluster nodes
+# @input.options: t3.medium,t3.large,t3.xlarge,t3.2xlarge,m5.large,m5.xlarge,m5.2xlarge
+# @input.required: true
+# @input.default: t3.large
+workloadNodeType: t3.large
