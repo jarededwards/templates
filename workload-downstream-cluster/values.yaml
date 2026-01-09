@@ -1,60 +1,40 @@
 # Workload Downstream Cluster Configuration
-# This values file contains all configurable parameters for bootstrapping a downstream workload cluster
+# System values are populated by Konstruct at render time
 
-projectClusterName: mgmt-cluster
+# Management Cluster Context
+projectClusterName: kubefirst-one-mgmt-cluster
+projectClusterRegion: us-west-2
+projectClusterAwsAccountId: "555935582951"
+projectClusterAssumeRole: arn:aws:iam::555935582951:role/crossplane-kubefirst-one-mgmt-cluster
+projectStateStoreBucket: k1-bu-mgmt-kubefirst-one-mgmt-cluster
 
-externalDnsProviderName: cloudflare
+# Kubefirst Management Account
+kubefirstMgmtAccountId: "126827061464"
+kubefirstMgmtCrossplaneRole: arn:aws:iam::126827061464:role/crossplane-kubefirst-one-mgmt-cluster-kubefirst
 
-gitopsRepoUrl: https://github.com/example/gitops-repo
+# GitOps Repository
+gitopsRepoUrl: https://github.com/gitops-ing/mgmt-cluster-gitops.git
 
-kubefirstMgmtAccountId: "123456789012"
+# Terraform Module URLs
+workloadClusterTerraformModuleUrl: git::https://github.com/gitops-ing/mgmt-cluster-gitops.git//terraform/aws/modules/workload-cluster?ref=template-engine
+workloadClusterBootstrapTerraformModuleUrl: git::https://github.com/gitops-ing/mgmt-cluster-gitops.git//terraform/aws/modules/bootstrap?ref=template-engine
+# Alerts/Contact
+alertsEmail: alerts@konstruct.io
 
-# System value - derived from selected Cloud Account
-workloadClusterAccountId: "987654321098"
+# Workload Cluster (from form fields)
+workloadClusterName: cluster-one-cris
+workloadClusterRegion: us-west-2
+workloadNodeCount: "2"
+workloadNodeType: m5.large
+workloadAmiType: AL2_x86_64
 
-# System value - mapped from Cluster name field in form
-workloadClusterName: workload-downstream-01
-
-# System value - mapped from Environments field in form
-workloadEnvironment: production
-
+# External DNS
 # @input.type: string
 # @input.description: Domain name for external DNS in workload cluster
 # @input.required: true
 # @input.default: workload.example.com
-workloadExternalDnsDomainName: workload.example.com
+workloadExternalDnsDomainName: gitops.ing
 
-# System value - mapped from Cloud region field in form
-workloadClusterRegion: us-west-2
-
-alertsEmail: alerts@example.com
-
-projectStateStoreBucket: project-state-store-bucket
-
-projectClusterRegion: us-east-1
-
-# System value - derived from selected Cloud Account
-workloadAssumeRole: arn:aws:iam::987654321098:role/workload-assume-role
-
-projectClusterAwsAccountId: "123456789012"
-
-projectClusterAssumeRole: arn:aws:iam::123456789012:role/project-cluster-assume-role
-
-cloudRegion: us-east-1
-
-workloadClusterBootstrapTerraformModuleUrl: https://github.com/example/terraform-bootstrap-module
-
-workloadClusterTerraformModuleUrl: https://github.com/example/terraform-workload-module
-
-# System value - mapped from Number of nodes field in form
-workloadNodeCount: 3
-
-# System value - mapped from Instance size field in form
-workloadNodeType: t3.large
-
-# System value - mapped from AMI type field in form
-workloadAmiType: AL2_x86_64
-
-# System value - DEX OIDC provider configuration
+# DEX OIDC
 dexProviderName: ""
 dexDomainName: ""
