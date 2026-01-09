@@ -30,7 +30,7 @@ workloadClusterBootstrapTerraformModuleUrl: git::https://github.com/gitops-ing/m
 alertsEmail: alerts@konstruct.io
 
 # Workload Cluster (from form fields)
-workloadClusterName: cluster-one-cris
+workloadClusterName: cluster-two-je
 workloadClusterRegion: us-west-2
 workloadNodeCount: "2"
 workloadNodeType: m5.large
