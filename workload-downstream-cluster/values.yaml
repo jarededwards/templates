@@ -16,8 +16,16 @@ kubefirstMgmtCrossplaneRole: arn:aws:iam::126827061464:role/crossplane-kubefirst
 gitopsRepoUrl: https://github.com/gitops-ing/mgmt-cluster-gitops.git
 
 # Terraform Module URLs
+
 workloadClusterTerraformModuleUrl: git::https://github.com/gitops-ing/mgmt-cluster-gitops.git//terraform/aws/modules/workload-cluster?ref=template-engine
+
+# Terraform Bootstrap module
+# @input.type: string
+# @input.description: the complete url for the terraform module
+# e.g. git::https://github.com/gitops-ing/mgmt-cluster-gitops.git//terraform/aws/modules/bootstrap?ref=template-engine
+# @input.required: false
 workloadClusterBootstrapTerraformModuleUrl: git::https://github.com/gitops-ing/mgmt-cluster-gitops.git//terraform/aws/modules/bootstrap?ref=template-engine
+
 # Alerts/Contact
 alertsEmail: alerts@konstruct.io
 
