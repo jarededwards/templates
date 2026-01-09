@@ -54,3 +54,7 @@ workloadNodeType: t3.large
 
 # System value - mapped from AMI type field in form
 workloadAmiType: AL2_x86_64
+
+# Optional: DEX OIDC provider configuration
+dexProviderName: ""
+dexDomainName: ""

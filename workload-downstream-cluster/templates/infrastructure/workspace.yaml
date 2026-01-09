@@ -3,12 +3,13 @@ kind: Workspace
 metadata:
   name: {{ .Values.workloadClusterName }}-infrastructure
 spec:
-  providerConfigRef: 
+  providerConfigRef:
     name: {{ .Values.workloadClusterName }}
   forProvider:
     source: Remote
     module: {{ .Values.workloadClusterTerraformModuleUrl }}
     vars:
+    # User-provided values (from UI form)
     - key: cluster_name
       value: "{{ .Values.workloadClusterName }}"
     - key: cluster_region
@@ -19,5 +20,15 @@ spec:
       value: "{{ .Values.workloadNodeType }}"
     - key: ami_type
       value: "{{ .Values.workloadAmiType }}"
+
+    # System values (derived from organization/cloud account)
+    - key: project_cluster_name
+      value: "{{ .Values.projectClusterName }}"
+    - key: project_aws_account_id
+      value: "{{ .Values.projectClusterAwsAccountId }}"
+    - key: dex_provider_name
+      value: "{{ .Values.dexProviderName | default "" }}"
+    - key: dex_domain_name
+      value: "{{ .Values.dexDomainName | default "" }}"
 
 
